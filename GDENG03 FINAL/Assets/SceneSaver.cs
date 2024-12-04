@@ -62,6 +62,7 @@ public class MeshData
 {
     public int[] triangles;
     public Vector3[] vertices;
+    public Vector3[] normals;
 
     // add whatever properties of the mesh you need...
 
@@ -69,6 +70,7 @@ public class MeshData
     {
         this.vertices = mesh.vertices;
         this.triangles = mesh.triangles;
+        this.normals = mesh.normals;
         // further properties...
     }
 }
