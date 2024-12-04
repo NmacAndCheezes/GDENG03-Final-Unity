@@ -44,8 +44,9 @@ public class SceneSaver : MonoBehaviour
 
         sData.GameObjects = dataList.ToArray();
         string data = JsonUtility.ToJson(sData, true);
-        System.IO.File.WriteAllText(Application.persistentDataPath + "/unityScene.level", data);
-        Debug.Log($"Saved in {Application.persistentDataPath + "/unityScene.level"}");
+        string directXPath = "C:\\Users\\Nathan\\Documents\\GitHub\\GDENG03-Scene-Editor-Group-1\\GDENG03-Activities";
+        System.IO.File.WriteAllText(directXPath + "/unityScene.level", data);
+        Debug.Log($"Saved in {directXPath + "/unityScene.level"}");
 
     }
 }
