@@ -7,9 +7,12 @@ public class SaveToCustomEngineEditor : Editor
 {
     public override void OnInspectorGUI()
     {
+        SceneSaver t = (SceneSaver)this.target;
         if(GUILayout.Button("Test"))
         {
-            Debug.Log("giid");
+            t.Save();
         }
     }
+
+
 }
