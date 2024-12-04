@@ -1,18 +1,18 @@
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Linq;
 using System;
 using Object = UnityEngine.Object;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.IO;
+using System.Linq;
+using Unity.VisualScripting;
+using UnityEngine.Android;
 
 public class SceneSaver : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public string path = "Hello World\nI've got 2 lines...";
 
     // Update is called once per frame
     public void Save()
@@ -47,7 +47,73 @@ public class SceneSaver : MonoBehaviour
         string directXPath = "C:\\Users\\Nathan\\Documents\\GitHub\\GDENG03-Scene-Editor-Group-1\\GDENG03-Activities";
         System.IO.File.WriteAllText(directXPath + "/unityScene.level", data);
         Debug.Log($"Saved in {directXPath + "/unityScene.level"}");
+    }
 
+    public void Load()
+    {
+        
+        string fullpath = "C:\\Users\\Nathan\\Documents\\GitHub\\GDENG03-Scene-Editor-Group-1\\GDENG03-Activities\\" + path;
+        Object[] objects = FindObjectsByType(typeof(GameObject), FindObjectsSortMode.InstanceID);
+        foreach (var v in objects)
+        {
+            if (v.GameObject() == this.gameObject) continue;
+            DestroyImmediate(v);
+        }
+        string data = File.ReadAllText(fullpath);
+        JObject sceneData = JObject.Parse(data);
+
+        Debug.Log($"Loading {path}");
+        List<JToken> jObj = sceneData["GameObjects"].Children().ToList();
+        foreach(JToken obj in jObj)
+        {
+            GameObject go = new GameObject();
+            go.name = obj["Name"].ToString() + "\n";
+            string result = go.name;
+            //go.SetActive((bool)sceneData["IsEnabled"]);
+            go.transform.localPosition = new Vector3(
+                (float)obj["Position"]["x"],
+                (float)obj["Position"]["y"],
+                (float)obj["Position"]["z"]
+                );
+            go.transform.localEulerAngles = new Vector3(
+                (float)obj["Rotation"]["x"],
+                (float)obj["Rotation"]["y"],
+                (float)obj["Rotation"]["z"]
+                );
+            go.transform.localScale = new Vector3(
+                (float)obj["Scale"]["x"],
+                (float)obj["Scale"]["y"],
+                (float)obj["Scale"]["z"]
+                );
+
+            Mesh mesh = new Mesh();
+            mesh.name = obj["Name"].ToString();
+            JArray jVertices = obj["vertices"] as JArray;
+            List<Vector3> vertices = new();
+            foreach (JToken v in jVertices)
+            {
+                Vector3 vec = new Vector3((float)v["x"], (float)v["y"], (float)v["z"]);
+                result += vec.ToString() + "\n";
+                vertices.Add(vec);
+                
+            }
+            mesh.vertices = vertices.ToArray();
+
+            JArray jIndices = obj["indices"] as JArray;
+            List<int> indices = new();
+            foreach (JToken i in jIndices)
+            {
+                indices.Add((int)i);
+                result += i.ToString() + "\n";
+            }
+            mesh.triangles = indices.ToArray();
+            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            go.AddComponent<MeshRenderer>();
+            Debug.Log(result);
+        }
+
+        
+        //mesh.SetVertices();
     }
 }
 
@@ -59,11 +125,25 @@ public class SceneData
 }
 
 [Serializable]
+public class ImportedScene
+{
+    public string sceneName;
+    public ImportedGO[] GameObjects;
+    public class ImportedGO
+    {
+        public string Name;
+        public bool IsEnabled;
+        public Vector3 Position;
+        public Vector3 Rotation;
+        public Vector3 Scale;
+    }
+}
+
+[Serializable]
 public class MeshData
 {
     public int[] triangles;
     public Vector3[] vertices;
-    public Vector3[] normals;
 
     // add whatever properties of the mesh you need...
 
@@ -71,7 +151,6 @@ public class MeshData
     {
         this.vertices = mesh.vertices;
         this.triangles = mesh.triangles;
-        this.normals = mesh.normals;
         // further properties...
     }
 }
