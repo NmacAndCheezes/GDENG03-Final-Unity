@@ -12,6 +12,7 @@ using UnityEngine.Android;
 
 public class SceneSaver : MonoBehaviour
 {
+    public string saveName;
     public string path = "Hello World\nI've got 2 lines...";
 
     // Update is called once per frame
@@ -45,8 +46,8 @@ public class SceneSaver : MonoBehaviour
         sData.GameObjects = dataList.ToArray();
         string data = JsonUtility.ToJson(sData, true);
         string directXPath = "C:\\Users\\Nathan\\Documents\\GitHub\\GDENG03-Scene-Editor-Group-1\\GDENG03-Activities";
-        System.IO.File.WriteAllText(directXPath + "/unityScene.level", data);
-        Debug.Log($"Saved in {directXPath + "/unityScene.level"}");
+        File.WriteAllText(directXPath + $"/{saveName}.level", data);
+        Debug.Log($"Saved in {directXPath + $"/{saveName}.level"}");
     }
 
     public void Load()
